@@ -1,0 +1,40 @@
+@page "/game/{GameName}/player/{PlayerId:guid}"
+@using GameLogic
+@implements IDisposable
+
+
+@if (game != null)
+{
+
+  @foreach (var tank in game.Tanks)
+  {
+    <TankComponent Tank=tank />
+  }
+}
+
+@code {
+  [Parameter]
+  public string GameName { get; set; }
+
+  [Parameter]
+  public Guid PlayerId { get; set; }
+
+  private Game game;
+
+  protected override void OnParametersSet()
+  {
+    game = Lobby.Games.Find(g => g.Name == GameName) ?? throw new Exception($"could not find game with name ${GameName}");
+    game.OnUpdate += Refresh;
+    @* game.RunGameLoop(); *@
+  }
+
+  private void Refresh()
+  {
+    InvokeAsync(StateHasChanged);
+  }
+
+  public void Dispose()
+  {
+    game.OnUpdate -= Refresh;
+  }
+}

@@ -13,9 +13,8 @@ public record Tank
   private const int MovementSpeedConst = 8;
   private const int MovementAngleConst = 30;
   private const int BoardSize = 700;
-  private const double TickInterval = 0.1;
 
-  public static Tank CalculateNewTank(Tank tank)
+  public static Tank ProcessTankMovement(Tank tank)
   {
     var nextAngle = tank.Angle;
     if (tank.MovingLeft)

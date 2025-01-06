@@ -1,0 +1,53 @@
+@using GameLogic
+
+@code {
+  [Parameter]
+  public Game? Game { get; set; }
+  [Parameter]
+  public Guid? PlayerId { get; set; }
+
+
+
+  private string[] movementKeys = ["w", "a", "s", "d"];
+  private HashSet<string> pressedKeys = new HashSet<string>();
+  private void handleKeyDown(KeyboardEventArgs e)
+  {
+    if (movementKeys.Contains(e.Key))
+      pressedKeys.Add(e.Key);
+  }
+  private void handleKeyUp(KeyboardEventArgs e)
+  {
+    pressedKeys.Remove(e.Key);
+  }
+  private void handleBlur()
+  {
+    pressedKeys = new HashSet<string>();
+  }
+  private const double inputCheckInterval = 0.001;
+  private PlayerInputRequest? lastSentInput = null;
+  private void SendInputIfDifferent(object? state)
+  {
+    @if (PlayerId == null || Game == null)
+      return;
+
+    InvokeAsync(() =>
+    {
+      var forward = pressedKeys.Contains("w");
+      var left = pressedKeys.Contains("a") && !pressedKeys.Contains("d");
+      var right = !pressedKeys.Contains("a") && pressedKeys.Contains("d");
+
+      var movementMessage = new PlayerInputRequest
+        {
+          PlayerId = (Guid)PlayerId,
+          Forward = forward,
+          Left = left,
+          Right = right,
+        };
+      if (movementMessage != lastSentInput)
+      {
+        lastSentInput = movementMessage;
+        Game.ReceiveUserInput(movementMessage);
+      }
+    });
+  }
+}
