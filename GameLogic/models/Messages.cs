@@ -1,0 +1,10 @@
+namespace GameLogic;
+public static class Messages
+{
+  public static readonly string GameList = "GameList";
+  public static readonly string CreateGame = "CreateGame";
+  public static readonly string JoinGame = "JoinGame";
+  public static readonly string JoinedGame = "JoinedGame";
+  public static readonly string GetGames = "GetGames";
+  public static readonly string CreatedGame = "CreatedGame";
+}

@@ -1,7 +1,10 @@
 ﻿@page "/"
 @using GameLogic
 @inject NavigationManager Navigation
+@using Microsoft.AspNetCore.SignalR.Client
+@using System.Text.Json
 @implements IDisposable
+@inject SignalRService signalR;
 
 <PageTitle>Home</PageTitle>
 
@@ -11,7 +14,7 @@
   </label>
 </form>
 
-@foreach (var game in Lobby.Games)
+@foreach (var game in games)
 {
   <div>
   @game.Name
@@ -21,23 +24,47 @@
 
 
 @code {
+  private HubConnection? hubConnection;
   private string userInputGameName = "";
 
-  private void CreateGame()
+  private IEnumerable<GameState> games = [];
+
+
+  protected override async Task OnInitializedAsync()
   {
-    var game = Lobby.CreateGame(userInputGameName);
+    await signalR.EnsureConnected();
+
+    signalR.HubConnection?.On<IEnumerable<GameState>>(Messages.GameList, (newGames) => {
+      Console.WriteLine("got game list");
+      
+      Console.WriteLine(JsonSerializer.Serialize(newGames));
+      
+      games = newGames;
+      InvokeAsync(StateHasChanged);
+    });
+
+    signalR.HubConnection?.On<string, Guid>(Messages.CreatedGame, (gameName, playerId) => {
+      Console.WriteLine("got created game response");
+      Navigation.NavigateTo($"/game/{gameName}/player/{playerId}");
+    });
+    signalR.HubConnection?.On<string, Guid>(Messages.JoinedGame, (gameName, playerId) => {
+      Console.WriteLine("got  game joined response");
+      Navigation.NavigateTo($"/game/{gameName}/player/{playerId}");
+    });
+
+    signalR.HubConnection?.SendAsync(Messages.GetGames);
+  }
+  private async Task CreateGame()
+  {
+    Console.WriteLine("sending message to create game");
+    
+    signalR.HubConnection?.SendAsync(Messages.CreateGame, userInputGameName);
     userInputGameName = "";
-
-    var playerId = game.JoinGame();
-
-    Navigation.NavigateTo($"/game/{game.Name}/player/{playerId}");
   }
   
   private void JoinGame(string gameName)
-  {
-    var game = Lobby.Games.Find(g => g.Name == gameName) ?? throw new Exception($"could not find game with name ${gameName}");
-    var playerId = game.JoinGame();
-    Navigation.NavigateTo($"/game/{game.Name}/player/{playerId}");
+  {    
+    signalR.HubConnection?.SendAsync(Messages.JoinGame, gameName);
   }
 
   protected override void OnInitialized()

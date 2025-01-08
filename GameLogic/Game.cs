@@ -13,6 +13,21 @@ public class Game
     loopRunner = new(this);
   }
 
+  public GameState GetGameState()
+  {
+    return new()
+    {
+      Status = Status,
+      Name = Name,
+      Tanks = Tanks.Select(t => new TankState()
+      {
+        Id = t.Id,
+        Position = t.Position,
+        Angle = t.Angle
+      }).ToArray()
+    };
+  }
+
   public async Task BroadcastUpdate()
   {
     OnUpdate?.Invoke();

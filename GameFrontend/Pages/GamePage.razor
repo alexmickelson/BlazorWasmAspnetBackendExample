@@ -1,5 +1,6 @@
 @page "/game/{GameName}/player/{PlayerId:guid}"
 @using GameLogic
+@using GameLogic.Game
 @implements IDisposable
 
 
@@ -23,7 +24,7 @@
 
   protected override void OnParametersSet()
   {
-    game = Lobby.Games.Find(g => g.Name == GameName) ?? throw new Exception($"could not find game with name ${GameName}");
+    game = Lobby.Games.Find(g => g.Name == GameName) ?? throw new Exception($"could not find game with name {GameName}");
     game.OnUpdate += Refresh;
     @* game.RunGameLoop(); *@
   }
