@@ -18,11 +18,6 @@ public class SignalRService
       .WithAutomaticReconnect()
       .Build();
 
-    HubConnection.On<string>("ReceiveMessage", (message) =>
-    {
-      Console.WriteLine($"Received message: {message}");
-    });
-
     try
     {
       await HubConnection.StartAsync();
