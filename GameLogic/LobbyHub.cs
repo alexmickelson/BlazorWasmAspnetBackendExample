@@ -23,7 +23,7 @@ public class LobbyHub : Hub
 
     await Clients.Client(Context.ConnectionId).SendAsync(Messages.CreatedGame, game.Name, playerId);
     game.loopRunner.RunGameLoop();
-    
+
     var games = lobby.Games.Select(g => g.GetGameState()).ToArray();
     await Clients.All.SendAsync(Messages.GameList, games);
   }
@@ -49,6 +49,14 @@ public class LobbyHub : Hub
     var game = lobby.Games.First(g => g.Name == gameName);
 
     game.ConnectedClients.Add(Context.ConnectionId);
+  }
+
+  public void PlayerInput(PlayerInputRequest request)
+  {
+    Console.WriteLine("got player input");
+    Console.WriteLine(request);
+    var game = lobby.Games.First(g => g.Name == request.GameName);
+    game.ReceiveUserInput(request);
   }
 
   public override async Task OnDisconnectedAsync(Exception? exception)

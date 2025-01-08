@@ -12,6 +12,7 @@ public record GameState
 public record TankState
 {
   public Guid Id { get; init; }
-  public (int X, int Y) Position { get; init; }
+  public int PositionX { get; init; }
+  public int PositionY { get; init; }
   public int Angle { get; init; }
 }

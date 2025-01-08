@@ -30,7 +30,8 @@ public class Game
       Tanks = Tanks.Select(t => new TankState()
       {
         Id = t.Id,
-        Position = t.Position,
+        PositionX = t.PositionX,
+        PositionY = t.PositionY,
         Angle = t.Angle
       }).ToArray()
     };

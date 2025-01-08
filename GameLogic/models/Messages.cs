@@ -9,4 +9,5 @@ public static class Messages
   public static readonly string CreatedGame = "CreatedGame";
   public static readonly string GameUpdate = "GameUpdate";
   public static readonly string SubscribeToGame = "SubscribeToGame";
+  public static readonly string PlayerInput = "PlayerInput";
 }
