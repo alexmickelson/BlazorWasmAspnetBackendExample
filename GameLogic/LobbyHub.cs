@@ -1,4 +1,6 @@
+using System.Text.Json;
 using GameLogic;
+using GameLogic.Game;
 using Microsoft.AspNetCore.SignalR;
 
 
@@ -16,6 +18,12 @@ public class LobbyHub : Hub
 
   public async Task CreateGame(string name)
   {
+    var nameTaken = lobby.Games.FirstOrDefault(g => g.Name == name) != null;
+    if(nameTaken)
+    {
+      throw new Exception($"cannot create game, name already taken: {name}");
+    }
+
     var game = lobby.CreateGame(name);
     Console.WriteLine($"created game: {name}");
 
@@ -46,9 +54,12 @@ public class LobbyHub : Hub
 
   public void SubscribeToGame(string gameName)
   {
+    Console.WriteLine("subscribing to game");
+
     var game = lobby.Games.First(g => g.Name == gameName);
 
     game.ConnectedClients.Add(Context.ConnectionId);
+
   }
 
   public void PlayerInput(PlayerInputRequest request)

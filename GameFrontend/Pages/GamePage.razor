@@ -8,11 +8,11 @@
 @if (game != null)
 {
   <PlayerControls GameName=@GameName PlayerId=PlayerId>
-    @foreach (var tank in game.Tanks)
+  @foreach (var tank in game.Tanks)
     {
       <TankComponent Tank=tank />
     }
-  </PlayerControls>
+    </PlayerControls>
 }
 
 @code {
@@ -31,11 +31,10 @@
     signalR.HubConnection?.On<GameState>(Messages.GameUpdate, (gameState) =>
     {
       game = gameState;
-
       InvokeAsync(StateHasChanged);
     });
 
-    signalR.HubConnection?.SendAsync(Messages.SubscribeToGame);
+    signalR.HubConnection?.SendAsync(Messages.SubscribeToGame, GameName);
 
   }
 }

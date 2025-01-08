@@ -15,7 +15,6 @@ public class GameLoopRunner
 
   public void RunGameLoop()
   {
-    
     Task.Run(async () =>
     {
       game.CancellationTokenSource.Token.ThrowIfCancellationRequested();

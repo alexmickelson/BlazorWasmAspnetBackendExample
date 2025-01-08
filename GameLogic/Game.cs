@@ -39,8 +39,7 @@ public class Game
 
   public async Task BroadcastUpdate()
   {
-    // OnUpdate?.Invoke();
-    await hubContext.Clients.All.SendAsync(Messages.GameUpdate, GetGameState());
+    await hubContext.Clients.Clients(ConnectedClients.ToArray()).SendAsync(Messages.GameUpdate, GetGameState());
   }
 
   public Guid JoinGame()
@@ -53,19 +52,18 @@ public class Game
   public void ReceiveUserInput(PlayerInputRequest request)
   {
     Tanks = Tanks.Select(t =>
-      {
-        return t.Id == request.PlayerId
-          ? t with
-          {
-            MovingForward = request.Forward,
-            MovingLeft = request.Left,
-            MovingRight = request.Right
-          }
-          : t;
-      })
-      .ToArray();
+    {
+      return t.Id == request.PlayerId
+        ? t with
+        {
+          MovingForward = request.Forward,
+          MovingLeft = request.Left,
+          MovingRight = request.Right
+        }
+        : t;
+    })
+    .ToArray();
   }
-
 }
 
 public enum GameStatus
