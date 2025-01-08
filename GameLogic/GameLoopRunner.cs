@@ -5,7 +5,7 @@ public class GameLoopRunner
   private readonly Game game;
   private object loopLock { get; } = new object();
   private bool loopIsRunning { get; set; } = false;
-  public static double TickIntervalScalar = 100;
+  public static double TickIntervalScalar = 10;
 
   public GameLoopRunner(Game game)
   {
@@ -15,6 +15,7 @@ public class GameLoopRunner
 
   public void RunGameLoop()
   {
+    
     Task.Run(async () =>
     {
       game.CancellationTokenSource.Token.ThrowIfCancellationRequested();
@@ -32,9 +33,13 @@ public class GameLoopRunner
       while (!game.CancellationTokenSource.Token.IsCancellationRequested)
       {
         await ProcessGameTick();
-        Thread.Sleep((int)(10 * TickIntervalScalar));
+        var interval = (int)(10 * TickIntervalScalar);
+        // Console.WriteLine($"sleeping {interval}");
+        
+        Thread.Sleep(interval);
       }
       loopIsRunning = false;
+      
     });
   }
   public async Task ProcessGameTick()

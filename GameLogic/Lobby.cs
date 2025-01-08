@@ -1,20 +1,26 @@
-using GameLogic;
+using System.Collections.Concurrent;
 using GameLogic.Game;
+using Microsoft.AspNetCore.SignalR;
 
-public static class Lobby
+public class Lobby
 {
-  public static List<Game> Games { get; set; } = new();
-  public static event Action OnLobbyUpdate;
+  public List<Game> Games { get; set; } = new();
+  private readonly IHubContext<LobbyHub> context;
 
-  public static Game CreateGame(string name)
+  public event Action OnLobbyUpdate;
+  public Lobby(IHubContext<LobbyHub> context)
   {
-    var newGame = new Game()
+    this.context = context;
+  }
+
+  public Game CreateGame(string name)
+  {
+    var newGame = new Game(context)
     {
       Name = name
     };
 
     Games.Add(newGame);
-    OnLobbyUpdate?.Invoke();
     return newGame;
   }
 }

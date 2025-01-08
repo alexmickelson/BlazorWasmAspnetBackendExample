@@ -3,7 +3,6 @@
 @inject NavigationManager Navigation
 @using Microsoft.AspNetCore.SignalR.Client
 @using System.Text.Json
-@implements IDisposable
 @inject SignalRService signalR;
 
 <PageTitle>Home</PageTitle>
@@ -28,7 +27,6 @@
   private string userInputGameName = "";
 
   private IEnumerable<GameState> games = [];
-
 
   protected override async Task OnInitializedAsync()
   {
@@ -65,18 +63,5 @@
   private void JoinGame(string gameName)
   {    
     signalR.HubConnection?.SendAsync(Messages.JoinGame, gameName);
-  }
-
-  protected override void OnInitialized()
-  {
-    Lobby.OnLobbyUpdate += Refresh;
-  }
-  private void Refresh()
-  {
-    InvokeAsync(StateHasChanged);
-  }
-  public void Dispose()
-  {
-    Lobby.OnLobbyUpdate -= Refresh;
   }
 }

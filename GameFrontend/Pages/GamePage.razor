@@ -1,7 +1,8 @@
 @page "/game/{GameName}/player/{PlayerId:guid}"
 @using GameLogic
 @using GameLogic.Game
-@implements IDisposable
+@using Microsoft.AspNetCore.SignalR.Client
+@inject SignalRService signalR
 
 
 @if (game != null)
@@ -20,22 +21,19 @@
   [Parameter]
   public Guid PlayerId { get; set; }
 
-  private Game game;
+  private GameState? game = null;
 
-  protected override void OnParametersSet()
+  protected override async Task OnParametersSetAsync()
   {
-    game = Lobby.Games.Find(g => g.Name == GameName) ?? throw new Exception($"could not find game with name {GameName}");
-    game.OnUpdate += Refresh;
-    @* game.RunGameLoop(); *@
-  }
+    await signalR.EnsureConnected();
 
-  private void Refresh()
-  {
-    InvokeAsync(StateHasChanged);
-  }
+    signalR.HubConnection?.On<GameState>(Messages.GameUpdate, (gameState) =>
+    {
+      game = gameState;
+      InvokeAsync(StateHasChanged);
+    });
 
-  public void Dispose()
-  {
-    game.OnUpdate -= Refresh;
+    signalR.HubConnection.SendAsync(Messages.SubscribeToGame);
+
   }
-}
+}    

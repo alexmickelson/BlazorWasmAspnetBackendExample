@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors();
+builder.Services.AddSingleton<Lobby>();
 builder.Services.AddSignalR();
 builder.Services.AddResponseCompression(opts =>
 {

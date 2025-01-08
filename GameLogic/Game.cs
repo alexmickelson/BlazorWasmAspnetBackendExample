@@ -1,16 +1,24 @@
+using System.Collections.Concurrent;
+using Microsoft.AspNetCore.SignalR;
+
 namespace GameLogic.Game;
 
 public class Game
 {
+  private readonly IHubContext<LobbyHub> hubContext;
+
   public GameStatus Status => GameStatus.Playing;
   public event Action OnUpdate;
+  public readonly ConcurrentBag<string> ConnectedClients = new();
   public string Name { get; init; }
   public IEnumerable<Tank> Tanks { get; internal set; } = [];
   public CancellationTokenSource CancellationTokenSource { get; set; } = new CancellationTokenSource();
   public GameLoopRunner loopRunner { get; set; }
-  public Game()
+
+  public Game(IHubContext<LobbyHub> context)
   {
     loopRunner = new(this);
+    hubContext = context;
   }
 
   public GameState GetGameState()
@@ -30,7 +38,8 @@ public class Game
 
   public async Task BroadcastUpdate()
   {
-    OnUpdate?.Invoke();
+    // OnUpdate?.Invoke();
+    await hubContext.Clients.All.SendAsync(Messages.GameUpdate, GetGameState());
   }
 
   public Guid JoinGame()
